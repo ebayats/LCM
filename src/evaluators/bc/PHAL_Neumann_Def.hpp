@@ -961,12 +961,23 @@ NeumannBase<EvalT, Traits>::calc_ace_press_hydrostatic(
   const ScalarT waterH = waterH_val;      // waterH interpolated in time
   const double  g      = inputValues[1];   // gravitational constant
   const double  rho    = inputValues[2];   // density
+  const double zmin    = inputValues[3];   // min value of z coord in mesh
   const bool dump_wave_press_nbc_data = inputValues[5];
 
   for (int cell = 0; cell < numCells_; cell++) {
     for (int qp = 0; qp < numPoints; qp++) {
       for (int dim = 0; dim < numDOFsSet; dim++) {
-        const ScalarT pval_qp = rho*g*waterH; 
+        MeshScalarT z = physPointsSide(cell, qp, 2);
+        MeshScalarT ztilde = z - zmin;
+        // Initialize pressure to 0.0
+        ScalarT pval_qp = 0.0; 
+        if (ztilde < waterH){
+          pval_qp = rho*g*(waterH - ztilde); 
+          // std::cout << "HYDROSTATIC PRESSURE: z = " << z << 
+          //               ", ztilde = " << ztilde << 
+          //               ", waterH = " << waterH <<  
+          //               ", pval_qp = " << pval_qp << std::endl;
+        }
         qp_data_returned(cell, qp, dim) = pval_qp * side_normals(cell, qp, dim);
       }
     }
