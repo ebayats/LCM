@@ -999,6 +999,7 @@ ACEThermoMechanical::AdvanceMechanicalDynamics(
     count_yield += bulk_failure_criterion.count_yield;
     count_strain += bulk_failure_criterion.count_strain;
     count_tension += bulk_failure_criterion.count_tension;
+    count_ice_melt += bulk_failure_criterion.count_ice_melt;
 
     auto&      fos                 = *Teuchos::VerboseObjectBase::getDefaultOStream();
     auto const failed_displacement = count_displacement / bulk_failure_criterion.failed_threshold;
@@ -1006,12 +1007,14 @@ ACEThermoMechanical::AdvanceMechanicalDynamics(
     auto const failed_yield        = count_yield / bulk_failure_criterion.failed_threshold;
     auto const failed_strain       = count_strain / bulk_failure_criterion.failed_threshold;
     auto const failed_tension      = count_tension / bulk_failure_criterion.failed_threshold;
+    auto const failed_ice_melt      = count_ice_melt / bulk_failure_criterion.failed_threshold;
     fos << "INFO: Failed element count";
     fos << ": displacement:" << failed_displacement;
     fos << ", angle:" << failed_angle;
     fos << ", yield:" << failed_yield;
     fos << ", strain:" << failed_strain;
     fos << ", tension:" << failed_tension;
+    fos << ", melt:" << failed_ice_melt;
     fos << '\n';
   } else {
     ALBANY_ABORT("Unknown time integrator for mechanics. Only Tempus and Piro Trapezoid Rule supported.");

@@ -251,6 +251,7 @@ class BulkFailureCriterion : public AbstractFailureCriterion
   int       count_yield{0};
   int       count_strain{0};
   int       count_tension{0};
+  int       count_ice_melt{0};
 
  private:
   ScalarFieldType const* failure_state_{nullptr};

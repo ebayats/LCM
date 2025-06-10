@@ -231,6 +231,8 @@ BulkFailureCriterion::check(stk::mesh::BulkData& /* bulk_data */, stk::mesh::Ent
   auto const* const pfs              = reinterpret_cast<double const* const>(stk::mesh::field_data(*failure_state_, element));
   auto const        failure_modes    = static_cast<int>(pfs[0]);
   auto              failure_state    = failure_modes;
+  auto const num_ice_melt = failure_state / 100000;
+  failure_state -= 100000 * num_ice_melt; 
   auto const        num_displacement = failure_state / 10000;
   failure_state -= 10000 * num_displacement;
   auto const num_angle = failure_state / 1000;
@@ -247,8 +249,13 @@ BulkFailureCriterion::check(stk::mesh::BulkData& /* bulk_data */, stk::mesh::Ent
     count_yield += num_yield;
     count_strain += num_strain;
     count_tension += num_tension;
+    count_ice_melt += num_ice_melt;
   }
-  return num_failed >= failed_threshold;  // # of integration points that must fail (max is 8 per element)
+
+  // Flag for failure if it either fails by mechanical criteria, OR by ice melt criterion (thermal)
+  bool const did_fail = (num_failed >= failed_threshold) || (num_ice_melt >= failed_threshold);
+  return did_fail;
+  // return num_failed >= failed_threshold;  // # of integration points that must fail (max is 8 per element)
 }
 
 }  // namespace LCM

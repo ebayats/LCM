@@ -148,6 +148,7 @@ class ACEThermoMechanical : public Thyra::ResponseOnlyModelEvaluatorBase<ST>
   mutable int count_yield{0};
   mutable int count_strain{0};
   mutable int count_tension{0};
+  mutable int count_ice_melt{0};
 
  private:
   /// Create operator form of dg/dx for distributed responses

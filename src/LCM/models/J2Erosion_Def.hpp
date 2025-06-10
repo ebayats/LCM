@@ -26,6 +26,12 @@ J2ErosionKernel<EvalT, Traits>::J2ErosionKernel(ConstitutiveModel<EvalT, Traits>
   tensile_strength_         = p->get<RealType>("ACE Tensile Strength", 0.0);
   strain_limit_             = p->get<RealType>("ACE Strain Limit", 0.0);
 
+  if (p->isParameter("ACE Ice Melt Threshold") == true) {
+    ice_melt_threshold_ = p->get<RealType>("ACE Ice Melt Threshold", -1.0);
+    // Elyce TODO: want to add warning around this that it won't be used unless >=0.0, but assignments of strictly 
+    // zero are ill-advised
+  }
+
   if (p->isParameter("ACE Sea Level File") == true) {
     auto const filename = p->get<std::string>("ACE Sea Level File");
     sea_level_          = vectorFromFile(filename);
@@ -636,5 +642,18 @@ J2ErosionKernel<EvalT, Traits>::operator()(int cell, int pt) const
     failed += 10000.0;
     // std::cout << "Cell " << cell << " pt " << pt << " :: max displacement \n";
   }
+
+  // Determine if ice melting was applicable, and if so, if it occurred 
+  if (ice_melt_threshold_>=0.0){ 
+    
+    // currently, we check if the material is ice wedge under the assumption that the ice wedge would be 
+    // input with porosity value of 1.0 
+    if (porosity > 0.99){
+      if ( ice_saturation_(cell, pt) < ice_melt_threshold_){
+        failed += 100000.0;
+      }
+    }
+  }
+
 }
 }  // namespace LCM
